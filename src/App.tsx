@@ -13,7 +13,7 @@ const [elements, setElements] = createSignal<ColourBlock[][]>(
 );
 const App: Component = () => {
     return (
-        <main class="h-full min-h-screen w-full dark:bg-gray-800 dark:text-white ">
+        <main class="h-full min-h-screen w-full bg-gray-200 dark:bg-gray-800 dark:text-white ">
             <div class="m-auto">
                 <h1 class="text-4xl font-bold text-center">Colour Game</h1>
                 <p class="text-center">Click the different colour</p>
