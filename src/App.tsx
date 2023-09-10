@@ -97,7 +97,6 @@ function fullColorHex(r: number, g: number, b: number, a: number) {
 }
 
 function getBiasedRandomAbovePercent(difficulty: number, bias = 1.5) {
-    // Ensure that percent is between 0 and 100
     let percent = difficulty;
     const min = percent * bias;
     if (min > 100) {
@@ -105,8 +104,7 @@ function getBiasedRandomAbovePercent(difficulty: number, bias = 1.5) {
     }
     const max = 100;
 
-    // You can adjust the bias factor as needed to control the bias
-    const randomValue = Math.random(); // Apply bias
+    const randomValue = Math.random();
     const randomNumber = min - randomValue * (max - min);
     const alpha = Math.floor((randomNumber / 100) * 255);
     return alpha;
