@@ -25,10 +25,9 @@ const App: Component = () => {
                 </p>
             </div>
             <div class="flex justify-center items-center">
-                <div class="relative">
-                    <div class="absolute top-0 left-0 right-0 bottom-0 z-10 border-2 pointer-events-none border-gray-800 dark:border-gray-200" />
+                <div class="flex overflow-auto m-2 border-2 border-gray-800 dark:border-white">
                     {elements().map((row, i) => (
-                        <div class="flex">
+                        <div class="">
                             {row.map((col, j) => (
                                 <ColourBlock
                                     colour={col.colour}
@@ -75,7 +74,7 @@ const ColourBlock = ({
         <button
             onClick={() => handleClick(isTarget)}
             style={{ background: colour }}
-            class={`block w-10 h-10`}
+            class={`block w-6 h-8 sm:w-8 sm-h-8 lg:w-10 lg:h-10`}
         ></button>
     );
 };
