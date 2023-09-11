@@ -1,4 +1,4 @@
-import { createSignal, type Component } from "solid-js";
+import { createSignal, type Component, createEffect } from "solid-js";
 
 type ColourBlock = {
     colour: string;
@@ -11,8 +11,17 @@ const [amount, setAmount] = createSignal(startAmount);
 const [difficulty, setDifficulty] = createSignal(startDifficulty);
 const [count, setCount] = createSignal(1);
 const [elements, setElements] = createSignal<ColourBlock[][]>(
-    createColours(amount())
+    localStorage.getItem("last-state") != null
+        ? (JSON.parse(
+              localStorage.getItem("last-state") as string
+          ) as ColourBlock[][])
+        : createColours(amount())
 );
+
+createEffect(() =>
+    localStorage.setItem("last-state", JSON.stringify(elements()))
+);
+
 const App: Component = () => {
     return (
         <main class="h-full min-h-screen w-full bg-gray-100 dark:bg-gray-800 dark:text-white pt-4">
