@@ -5,10 +5,18 @@ type ColourBlock = {
     isTarget: boolean;
 };
 const startAmount = 20;
-const startDifficulty = 50;
+const startLevel = 50;
 
-const [amount, setAmount] = createSignal(startAmount);
-const [difficulty, setDifficulty] = createSignal(startDifficulty);
+const [amount, setAmount] = createSignal(
+    localStorage.getItem("last-amount") != null
+        ? parseInt(localStorage.getItem("last-amount") as string)
+        : startAmount
+);
+const [level, setLevel] = createSignal(
+    localStorage.getItem("last-level") != null
+        ? parseInt(localStorage.getItem("last-level") as string)
+        : startLevel
+);
 const [count, setCount] = createSignal(1);
 const [elements, setElements] = createSignal<ColourBlock[][]>(
     localStorage.getItem("last-state") != null
@@ -17,12 +25,20 @@ const [elements, setElements] = createSignal<ColourBlock[][]>(
           ) as ColourBlock[][])
         : createColours(amount())
 );
+const [guessAlpha, setGuessAlpha] = createSignal(0);
+const [rightAlpha, setRightAlpha] = createSignal(0);
 
-createEffect(() =>
-    localStorage.setItem("last-state", JSON.stringify(elements()))
-);
+const hextToAlpha = (hex: string) => {
+    const alpha = hex.substring(7, 9);
+    return parseInt(alpha, 16);
+};
 
 const App: Component = () => {
+    createEffect(() => {
+        localStorage.setItem("last-state", JSON.stringify(elements()));
+        localStorage.setItem("last-amount", amount().toString());
+        localStorage.setItem("last-level", level().toString());
+    });
     return (
         <main class="h-full min-h-screen w-full bg-gray-100 dark:bg-gray-800 dark:text-white pt-4">
             <div class="m-auto p-4">
@@ -30,13 +46,15 @@ const App: Component = () => {
                 <p class="text-center">Click the different colour</p>
                 <p class="text-center font-mono text-sm">Counter:{count()}</p>
                 <p class="text-center font-mono text-sm">
-                    Difficulty:{difficulty()}, Amount:{amount()} x {amount()}
+                    Level:{level()}, Amount:{amount()} x {amount()} equating to
+                    a total Difficulty of:{" "}
+                    {Math.floor((guessAlpha() / rightAlpha()) * 10000) / 100}%
                 </p>
             </div>
             <div class="flex justify-center items-center">
                 <div class="flex overflow-auto m-2 border-2 border-gray-800 dark:border-white">
                     {elements().map((row, i) => (
-                        <div class="">
+                        <div>
                             {row.map((col, j) => (
                                 <ColourBlock
                                     colour={col.colour}
@@ -60,7 +78,7 @@ const ColourBlock = ({
 }) => {
     const restart = () => {
         setCount(0);
-        setDifficulty(startDifficulty);
+        setLevel(startLevel);
         setAmount(startAmount);
     };
     const handleClick = (isTarget: boolean) => {
@@ -70,7 +88,7 @@ const ColourBlock = ({
         setElements([...createColours(amount())]);
         let completed = 0;
         if (count() % 2 === 0) {
-            difficulty() < 100 ? setDifficulty(difficulty() + 5) : completed++;
+            level() < 100 ? setLevel(level() + 5) : completed++;
         } else {
             amount() < 50 ? setAmount(amount() + 1) : completed++;
         }
@@ -79,9 +97,17 @@ const ColourBlock = ({
         }
         setCount(count() + 1);
     };
+    if (isTarget) {
+        setGuessAlpha(hextToAlpha(colour));
+    } else {
+        setRightAlpha(hextToAlpha(colour));
+    }
+
     return (
         <button
-            onClick={() => handleClick(isTarget)}
+            onClick={() => {
+                handleClick(isTarget);
+            }}
             style={{ background: colour }}
             class={`block w-6 h-8 sm:w-8 sm-h-8 lg:w-10 lg:h-10`}
         ></button>
@@ -107,10 +133,10 @@ function fullColorHex(r: number, g: number, b: number, a: number) {
 function getBiasedRandomAbovePercent(difficulty: number, bias = 1.5) {
     let percent = difficulty;
     const min = percent * bias;
-    if (min > 100) {
+    if (min >= 100) {
         return getBiasedRandomAbovePercent(difficulty, bias - 0.1);
     }
-    const max = 100;
+    const max = 99.99999999;
 
     const randomValue = Math.random();
     const randomNumber = min - randomValue * (max - min);
@@ -131,7 +157,7 @@ function createColours(num: number) {
         isTarget: false,
     };
 
-    const offset = getBiasedRandomAbovePercent(difficulty());
+    const offset = getBiasedRandomAbovePercent(level());
 
     const guessColor = {
         colour:
