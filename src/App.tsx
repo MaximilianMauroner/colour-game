@@ -17,7 +17,11 @@ const [level, setLevel] = createSignal(
         ? parseInt(localStorage.getItem("last-level") as string)
         : startLevel
 );
-const [count, setCount] = createSignal(1);
+const [count, setCount] = createSignal(
+    localStorage.getItem("last-count") != null
+        ? parseInt(localStorage.getItem("last-count") as string)
+        : 0
+);
 const [elements, setElements] = createSignal<ColourBlock[][]>(
     localStorage.getItem("last-state") != null
         ? (JSON.parse(
@@ -38,6 +42,7 @@ const App: Component = () => {
         localStorage.setItem("last-state", JSON.stringify(elements()));
         localStorage.setItem("last-amount", amount().toString());
         localStorage.setItem("last-level", level().toString());
+        localStorage.setItem("last-count", count().toString());
     });
     return (
         <main class="h-full min-h-screen w-full bg-gray-100 dark:bg-gray-800 dark:text-white pt-4">
